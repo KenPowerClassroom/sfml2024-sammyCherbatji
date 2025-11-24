@@ -23,3 +23,15 @@ TEST(PhysicsTest, ApplyDrag_ReducesVelocityCorrectly)
     EXPECT_FLOAT_EQ(dx, 5.0f);
     EXPECT_FLOAT_EQ(dy, -5.0f);
 }
+
+// 3. TEST SPEED LIMIT
+TEST(PhysicsTest, LimitSpeed_ClampsVelocityToMax)
+{
+    float dx = 100, dy = 0;
+
+    Physics::limitSpeed(dx, dy, 10.0f);
+
+    float speed = std::sqrt(dx * dx + dy * dy);
+
+    EXPECT_NEAR(speed, 10.0f, 0.001f);
+}
