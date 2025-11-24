@@ -235,8 +235,10 @@ int asteroids()
               }
         }
 
-    if (Keyboard::isKeyPressed(Keyboard::Right)) p->angle+=3;
-    if (Keyboard::isKeyPressed(Keyboard::Left))  p->angle-=3;
+    const float PLAYER_ROTATION_SPEED = 3.0f;
+
+    if (Keyboard::isKeyPressed(Keyboard::Right)) p->angle += PLAYER_ROTATION_SPEED;
+    if (Keyboard::isKeyPressed(Keyboard::Left))  p->angle -= PLAYER_ROTATION_SPEED;
     if (Keyboard::isKeyPressed(Keyboard::Up)) p->thrust=true;
     else p->thrust=false;
 
