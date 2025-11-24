@@ -48,13 +48,20 @@ class Animation
 
 };
 
+enum class EntityType
+{
+    Player,
+    Asteroid,
+    Bullet,
+    Explosion
+};
 
 class Entity
 {
    public:
    float x,y,dx,dy,R,angle;
    bool isAlive;
-   std::string name;
+   EntityType type;
    Animation anim;
 
    Entity()
@@ -96,7 +103,7 @@ class asteroid: public Entity
    {
      dx=rand()%8-4;
      dy=rand()%8-4;
-     name="asteroid";
+     type = EntityType::Asteroid;
    }
 
    void update()
@@ -116,7 +123,7 @@ class bullet: public Entity
    public:
    bullet()
    {
-     name="bullet";
+       type = EntityType::Bullet;
    }
 
    void  update()
@@ -140,7 +147,7 @@ public:
 
     player()
     {
-        name = "player";
+        type = EntityType::Player;
     }
 
     void update() override
@@ -179,7 +186,7 @@ void handleAsteroidBulletCollision(Entity* rock, Entity* bullet, std::list<Entit
     // Add explosion animation
     Entity* explosion = new Entity();
     explosion->settings(explosionAnim, rock->x, rock->y);
-    explosion->name = "explosion";
+    explosion->type = EntityType::Explosion;
     entities.push_back(explosion);
 
     // Create 2 smaller asteroids
@@ -200,7 +207,7 @@ void handlePlayerAsteroidCollision(player* p, Entity* asteroid, std::list<Entity
     // Create ship explosion
     Entity* explosion = new Entity();
     explosion->settings(explosionAnim, p->x, p->y);
-    explosion->name = "explosion";
+    explosion->type = EntityType::Explosion;
     entities.push_back(explosion);
 
     // Reset player position
@@ -282,7 +289,7 @@ int asteroids()
             if (a == b) continue;
 
             // Asteroid gets hit by bullet
-            if (a->name == "asteroid" && b->name == "bullet")
+            if (a->type == EntityType::Asteroid && b->type == EntityType::Bullet)
             {
                 if (isCollide(a, b))
                 {
@@ -294,7 +301,7 @@ int asteroids()
             }
 
             // Player hits asteroid
-            if (a->name == "player" && b->name == "asteroid")
+            if (a->type == EntityType::Player && b->type == EntityType::Asteroid)
             {
                 if (isCollide(a, b))
                 {
@@ -313,7 +320,7 @@ int asteroids()
 
 
     for(auto e:entities)
-     if (e->name=="explosion")
+     if (e->type == EntityType::Explosion)
       if (e->anim.isEnd()) e->isAlive = 0;
 
     if (rand()%150==0)
