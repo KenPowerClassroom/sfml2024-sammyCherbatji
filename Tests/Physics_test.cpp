@@ -35,3 +35,14 @@ TEST(PhysicsTest, LimitSpeed_ClampsVelocityToMax)
 
     EXPECT_NEAR(speed, 10.0f, 0.001f);
 }
+
+// 4. TEST SPEED LIMIT DOES NOT CHANGE IF BELOW MAX
+TEST(PhysicsTest, LimitSpeed_DoesNothingIfBelowMax)
+{
+    float dx = 3, dy = 4;
+
+    Physics::limitSpeed(dx, dy, 10.0f);
+
+    EXPECT_FLOAT_EQ(dx, 3);
+    EXPECT_FLOAT_EQ(dy, 4);
+}
