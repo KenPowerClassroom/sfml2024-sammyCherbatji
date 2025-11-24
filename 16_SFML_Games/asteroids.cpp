@@ -51,13 +51,13 @@ class Entity
 {
    public:
    float x,y,dx,dy,R,angle;
-   bool life;
+   bool isAlive;
    std::string name;
    Animation anim;
 
    Entity()
    {
-     life=1;
+       isAlive = 1;
    }
 
    void settings(Animation &a,int X,int Y,float Angle=0,int radius=1)
@@ -125,7 +125,7 @@ class bullet: public Entity
      x+=dx;
      y+=dy;
 
-     if (x>W || x<0 || y>H || y<0) life=0;
+     if (x>W || x<0 || y>H || y<0) isAlive = false;
    }
 
 };
@@ -235,7 +235,7 @@ int asteroids()
               }
         }
 
-    const float PLAYER_ROTATION_SPEED = 3.0f;
+     const float PLAYER_ROTATION_SPEED = 3.0f;
 
     if (Keyboard::isKeyPressed(Keyboard::Right)) p->angle += PLAYER_ROTATION_SPEED;
     if (Keyboard::isKeyPressed(Keyboard::Left))  p->angle -= PLAYER_ROTATION_SPEED;
@@ -249,8 +249,8 @@ int asteroids()
       if (a->name=="asteroid" && b->name=="bullet")
        if ( isCollide(a,b) )
            {
-            a->life=false;
-            b->life=false;
+            a->isAlive = false;
+            b->isAlive = false;
 
             Entity *e = new Entity();
             e->settings(sExplosion,a->x,a->y);
@@ -271,7 +271,7 @@ int asteroids()
       if (a->name=="player" && b->name=="asteroid")
        if ( isCollide(a,b) )
            {
-            b->life=false;
+            b->isAlive = false;
 
             Entity *e = new Entity();
             e->settings(sExplosion_ship,a->x,a->y);
@@ -290,7 +290,7 @@ int asteroids()
 
     for(auto e:entities)
      if (e->name=="explosion")
-      if (e->anim.isEnd()) e->life=0;
+      if (e->anim.isEnd()) e->isAlive = 0;
 
     if (rand()%150==0)
      {
@@ -306,7 +306,7 @@ int asteroids()
       e->update();
       e->anim.update();
 
-      if (e->life==false) {i=entities.erase(i); delete e;}
+      if (!e->isAlive) {i=entities.erase(i); delete e;}
       else i++;
     }
 
