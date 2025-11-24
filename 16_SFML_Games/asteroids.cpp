@@ -174,6 +174,44 @@ bool isCollide(Entity *a,Entity *b)
 }
 
 
+void handleAsteroidBulletCollision(Entity* rock, Entity* bullet, std::list<Entity*>& entities, Animation& explosionAnim, Animation& smallRockAnim)
+{
+    rock->isAlive = false;
+    bullet->isAlive = false;
+
+    // Add explosion animation
+    Entity* explosion = new Entity();
+    explosion->settings(explosionAnim, rock->x, rock->y);
+    explosion->name = "explosion";
+    entities.push_back(explosion);
+
+    // Create 2 smaller asteroids
+    for (int i = 0; i < 2; i++)
+    {
+        if (rock->R == 15) continue;
+
+        asteroid* small = new asteroid();
+        small->settings(smallRockAnim, rock->x, rock->y, rand() % 360, 15);
+        entities.push_back(small);
+    }
+}
+
+void handlePlayerAsteroidCollision(player* p, Entity* asteroid, std::list<Entity*>& entities, Animation& explosionAnim, int respawnX, int respawnY)
+{
+    asteroid->isAlive = false;
+
+    // Create ship explosion
+    Entity* explosion = new Entity();
+    explosion->settings(explosionAnim, p->x, p->y);
+    explosion->name = "explosion";
+    entities.push_back(explosion);
+
+    // Reset player position
+    p->settings(p->anim, respawnX, respawnY, 0, 20);
+    p->dx = 0;
+    p->dy = 0;
+}
+
 int asteroids()
 {
     srand(time(0));
@@ -241,49 +279,38 @@ int asteroids()
     if (Keyboard::isKeyPressed(Keyboard::Left))  p->angle -= PLAYER_ROTATION_SPEED;
     if (Keyboard::isKeyPressed(Keyboard::Up)) p->thrust=true;
     else p->thrust=false;
+    for (auto a : entities)
+        for (auto b : entities)
+        {
+            if (a == b) continue;
 
-
-    for(auto a:entities)
-     for(auto b:entities)
-     {
-      if (a->name=="asteroid" && b->name=="bullet")
-       if ( isCollide(a,b) )
-           {
-            a->isAlive = false;
-            b->isAlive = false;
-
-            Entity *e = new Entity();
-            e->settings(sExplosion,a->x,a->y);
-            e->name="explosion";
-            entities.push_back(e);
-
-
-            for(int i=0;i<2;i++)
+            // Asteroid gets hit by bullet
+            if (a->name == "asteroid" && b->name == "bullet")
             {
-             if (a->R==15) continue;
-             Entity *e = new asteroid();
-             e->settings(sRock_small,a->x,a->y,rand()%360,15);
-             entities.push_back(e);
+                if (isCollide(a, b))
+                {
+                    handleAsteroidBulletCollision(
+                        a, b, entities,
+                        sExplosion, sRock_small
+                    );
+                }
             }
 
-           }
-
-      if (a->name=="player" && b->name=="asteroid")
-       if ( isCollide(a,b) )
-           {
-            b->isAlive = false;
-
-            Entity *e = new Entity();
-            e->settings(sExplosion_ship,a->x,a->y);
-            e->name="explosion";
-            entities.push_back(e);
-
-            p->settings(sPlayer,W/2,H/2,0,20);
-            p->dx=0; p->dy=0;
-           }
-     }
-
-
+            // Player hits asteroid
+            if (a->name == "player" && b->name == "asteroid")
+            {
+                if (isCollide(a, b))
+                {
+                    handlePlayerAsteroidCollision(
+                        p,
+                        b,
+                        entities,
+                        sExplosion_ship,
+                        W / 2, H / 2
+                    );
+                }
+            }
+        }
     if (p->thrust)  p->anim = sPlayer_go;
     else   p->anim = sPlayer;
 
